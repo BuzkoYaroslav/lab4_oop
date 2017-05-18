@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include <iterator>
 #include <string>
 using namespace std;
 
@@ -30,8 +31,52 @@ public:
 		reference operator*();
 		pointer operator->();
 
-		const_iterator(Fibonacci<T> const& container, int _index);
+		const_iterator(const Fibonacci<T> *const container, int _index);
+		const_iterator(const_iterator const& copyFrom);
 
+		friend bool operator<(const_iterator& lhs, const_iterator& rhs)
+		{
+			return rhs.index > lhs.index;
+		}
+		friend bool operator>(const_iterator& lhs, const_iterator& rhs)
+		{
+			return rhs < lhs;
+		}
+		friend bool operator<=(const_iterator& lhs, const_iterator& rhs)
+		{
+			return !(lhs > rhs);
+		}
+		friend bool operator>=(const_iterator& lhs, const_iterator& rhs)
+		{
+			return !(lhs < rhs);
+		}
+		friend bool operator==(const_iterator& lhs, const_iterator& rhs)
+		{
+			return rhs.index == lhs.index;
+		}
+		friend bool operator!=(const_iterator& lhs, const_iterator& rhs)
+		{
+			return !(lhs == rhs);
+		}
+
+		friend typename Fibonacci<T>::const_iterator operator+(difference_type count, const_iterator iter)
+		{
+			return iter + count;
+		}
+		friend typename Fibonacci<T>::const_iterator operator+(const_iterator iter, difference_type count)
+		{
+			iter += count;
+			return iter;
+		}
+		friend typename Fibonacci<T>::const_iterator operator-(difference_type count, const_iterator iter)
+		{
+			return iter - count;
+		}
+		friend typename Fibonacci<T>::const_iterator operator-(const_iterator iter, difference_type count)
+		{
+			iter -= count;
+			return iter;
+		}
 	private:
 		friend class Fibonacci<T>;
 
@@ -42,8 +87,10 @@ public:
 
 		void advance(difference_type count);
 
-		Fibonacci<T> *cont;
-		T* value;
+		const Fibonacci<T> *cont;
+		
+		bool isCalculated;
+		T value;
 		int index;
 	};
 	
@@ -65,9 +112,9 @@ template <typename T>
 Fibonacci<T>::Fibonacci(int _size)
 {
 	containerSize = _size;
-	if (is_same<T, string>::value) {
-		first = defaultFirstString;
-		second = defaultSecondString;
+	if (is_same<T, string>::value == 1) {
+		//first =  dynamic_cast<T>(defaultFirstString);
+		//second = dynamic_cast<T>(defaultSecondString);
 	}
 	else {
 		first = defaultFirstNumber;
@@ -87,7 +134,7 @@ Fibonacci<T>::~Fibonacci()
 }
 
 template <typename T>
-T Fibonacci<T>::at(int index) const 
+T Fibonacci<T>::at(int index) const
 {
 	if (index >= size())
 		throw "Index out of range!";
@@ -114,79 +161,32 @@ int Fibonacci<T>::size() const
 }
 
 template <typename T>
-Fibonacci<T>::const_iterator Fibonacci<T>::cbegin() const
+typename Fibonacci<T>::const_iterator Fibonacci<T>::cbegin() const
 {
-	return const_iterator::const_iterator(this, 0);
+	return  Fibonacci<T>::const_iterator::const_iterator(this, 0);
 }
 template <typename T>
-Fibonacci<T>::const_iterator Fibonacci<T>::cend() const
+typename Fibonacci<T>::const_iterator Fibonacci<T>::cend() const
 {
-	return const_iterator::const_iterator(this, size());
+	return Fibonacci<T>::const_iterator::const_iterator(this, size());
 }
 
 template <typename T>
-Fibonacci<T>::const_iterator::const_iterator(Fibonacci<T> const& container, int _index) {
-	cont = container;
+Fibonacci<T>::const_iterator::const_iterator(const Fibonacci<T> *const container, int _index) {
+	cont = &(*container);
 	index = _index;
 	makeValueDefault();
 }
 template <typename T>
+Fibonacci<T>::const_iterator::const_iterator(typename Fibonacci<T>::const_iterator const& copyFrom) {
+	cont = &(*(copyFrom.cont));
+	index = copyFrom.index;
+	makeValueDefault();
+}
+template <typename T>
 void Fibonacci<T>::const_iterator::makeValueDefault() {
-	value = NULL;
-}
-
-template <typename T>
-bool operator<(const Fibonacci<T>::const_iterator& lhs, const Fibonacci<T>::const_iterator& rhs)
-{
-	return rhs.index > lhs.index;
-}
-template <typename T>
-bool operator>(const Fibonacci<T>::const_iterator& lhs, const Fibonacci<T>::const_iterator& rhs)
-{
-	return rhs < lhs;
-}
-template <typename T>
-bool operator<=(const Fibonacci<T>::const_iterator& lhs, const Fibonacci<T>::const_iterator& rhs)
-{
-	return !(lhs > rhs);
-}
-template <typename T>
-bool operator>=(const Fibonacci<T>::const_iterator& lhs, const Fibonacci<T>::const_iterator& rhs)
-{
-	return !(lhs < rhs);
-}
-template <typename T>
-bool operator==(const Fibonacci<T>::const_iterator& lhs, const Fibonacci<T>::const_iterator& rhs) 
-{
-	return rhs.index == lhs.index;
-}
-template <typename T>
-bool operator!=(const Fibonacci<T>::const_iterator& lhs, const Fibonacci<T>::const_iterator& rhs)
-{
-	return !(lhs == rhs);
-}
-
-template <typename T>
-const_iterator& operator+(Fibonacci<T>::const_iterator::difference_type count, const Fibonacci<T>::const_iterator iter)
-{
-	return iter + count;
-}
-template <typename T>
-const_iterator& operator+(const Fibonacci<T>::const_iterator iter, Fibonacci<T>::const_iterator::difference_type count)
-{
-	iter += count;
-	return iter;
-}
-template <typename T>
-const_iterator& operator-(Fibonacci<T>::const_iterator::difference_type count, const Fibonacci<T>::const_iterator iter)
-{
-	return iter - count;
-}
-template <typename T>
-const_iterator& operator-(const Fibonacci<T>::const_iterator iter, Fibonacci<T>::const_iterator::difference_type count)
-{
-	iter -= count;
-	return iter;
+	value = T();
+	isCalculated = false;
 }
 
 template <typename T>
@@ -202,47 +202,51 @@ void Fibonacci<T>::const_iterator::decrement()
 	makeValueDefault();
 }
 template <typename T>
-void Fibonacci<T>::const_iterator::advance(difference_type count)
+void Fibonacci<T>::const_iterator::advance(typename Fibonacci<T>::const_iterator::difference_type count)
 {
 	index += count;
 	makeValueDefault();
 }
 
 template <typename T>
-Fibonacci<T>::const_iterator& Fibonacci<T>::const_iterator::operator--() {
+typename Fibonacci<T>::const_iterator& Fibonacci<T>::const_iterator::operator--() {
 	decrement();
 	
 	return this;
 }
 template <typename T>
-Fibonacci<T>::const_iterator& Fibonacci<T>::const_iterator::operator++() {
+typename Fibonacci<T>::const_iterator& Fibonacci<T>::const_iterator::operator++() {
 	increment();
 
 	return this;
 }
 template <typename T>
-Fibonacci<T>::const_iterator& Fibonacci<T>::const_iterator::operator-=(Fibonacci<T>::const_iterator::difference_type count) {
-	return this += -n;
+typename Fibonacci<T>::const_iterator& Fibonacci<T>::const_iterator::operator-=(typename Fibonacci<T>::const_iterator::difference_type count) {
+	advance(-count);
+
+	return *this;
 }
 template <typename T>
-Fibonacci<T>::const_iterator& Fibonacci<T>::const_iterator::operator+=(Fibonacci<T>::const_iterator::difference_type count) {
+typename Fibonacci<T>::const_iterator& Fibonacci<T>::const_iterator::operator+=(typename Fibonacci<T>::const_iterator::difference_type count) {
 	advance(count);
 
-	return this;
+	return *this;
 }
 
 template <typename T>
-Fibonacci<T>::const_iterator::reference Fibonacci<T>::const_iterator::operator*() {
-	if (value == NULL) {
+typename Fibonacci<T>::const_iterator::reference Fibonacci<T>::const_iterator::operator*() {
+	if (!isCalculated) {
 		value = cont->at(index);
+		isCalculated = true;
 	}
 
 	return value;
 }
 template <typename T>
-Fibonacci<T>::const_iterator::pointer Fibonacci<T>::const_iterator::operator->() {
-	if (value == NULL) {
+typename Fibonacci<T>::const_iterator::pointer Fibonacci<T>::const_iterator::operator->() {
+	if (!isCalculated) {
 		value = cont->at(index);
+		isCalculated = true;
 	}
 
 	return &value;
