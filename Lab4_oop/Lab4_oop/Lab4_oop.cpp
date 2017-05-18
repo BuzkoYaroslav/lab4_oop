@@ -6,10 +6,11 @@
 #include <iterator>
 #include <algorithm>
 #include <vector>
+#include <string>
 #include "Fibonacci.h"
 using namespace std;
 
-const int fibonacciSequenceSize = 30;
+const int fibonacciSequenceSize = 12;
 
 typedef Fibonacci<int>::const_iterator iter;
 
@@ -19,18 +20,16 @@ int main()
 	int x = 0;
 	cin >> x;
 
-	Fibonacci<int> fib = Fibonacci<int>(fibonacciSequenceSize);
-	vector<int> vect = vector<int>();
+	Fibonacci<string> fib = Fibonacci<string>(fibonacciSequenceSize);
+	vector<string> vect = vector<string>();
 
-	for (Fibonacci<int>::const_iterator iter = fib.cend() - x; iter != fib.cbegin() + x; iter -= 1)
+	for (Fibonacci<string>::const_iterator iter = fib.cend() - x; iter != fib.cbegin() + x; iter -= 1)
 	{
 		
 		vect.push_back(*iter);
 	}
 
 	sort(vect.begin(), vect.end());
-
-
 
     return 0;
 }

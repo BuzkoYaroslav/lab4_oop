@@ -112,9 +112,9 @@ template <typename T>
 Fibonacci<T>::Fibonacci(int _size)
 {
 	containerSize = _size;
-	if (is_same<T, string>::value == 1) {
-		//first =  dynamic_cast<T>(defaultFirstString);
-		//second = dynamic_cast<T>(defaultSecondString);
+	if (typeid(string) == typeid(T)) {
+		first =  (defaultFirstString);
+		second = (defaultSecondString);
 	}
 	else {
 		first = defaultFirstNumber;
