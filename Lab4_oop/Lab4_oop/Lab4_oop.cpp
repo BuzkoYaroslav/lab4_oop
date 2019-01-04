@@ -20,16 +20,18 @@ int main()
 	int x = 0;
 	cin >> x;
 
-	Fibonacci<string> fib = Fibonacci<string>(fibonacciSequenceSize);
+	Fibonacci<string> fib = Fibonacci<string>(fibonacciSequenceSize, "l", "o");
 	vector<string> vect = vector<string>();
 
-	for (Fibonacci<string>::const_iterator iter = fib.cend() - x; iter != fib.cbegin() + x; iter -= 1)
+	vect.insert(vect.end(), fib.cbegin() + x, fib.cend() - x);/*for (Fibonacci<string>::const_iterator iter = fib.cend() - x - 1; iter != fib.cbegin() + x - 1; iter -= 1)
 	{
 		
 		vect.push_back(*iter);
-	}
+	}*/
 
 	sort(vect.begin(), vect.end());
+
+	//(fib.cbegin(), fib.cend(), 6);
 
     return 0;
 }

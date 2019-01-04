@@ -31,7 +31,7 @@ public:
 		reference operator*();
 		pointer operator->();
 
-		const_iterator(const Fibonacci<T> *const container, int _index);
+		const_iterator(const Fibonacci<T> *container, int _index);
 		const_iterator(const_iterator const& copyFrom);
 
 		friend bool operator<(const_iterator& lhs, const_iterator& rhs)
@@ -112,14 +112,15 @@ template <typename T>
 Fibonacci<T>::Fibonacci(int _size)
 {
 	containerSize = _size;
-	if (typeid(string) == typeid(T)) {
-		first =  (defaultFirstString);
-		second = (defaultSecondString);
-	}
-	else {
-		first = defaultFirstNumber;
-		second = defaultSecondNumber;
-	}
+	first = defaultFirstNumber;
+	second = defaultSecondNumber;
+}
+template <>
+Fibonacci<string>::Fibonacci(int _size)
+{
+	containerSize = _size;
+	first = (defaultFirstString);
+	second = (defaultSecondString);
 }
 template <typename T>
 Fibonacci<T>::Fibonacci(int _size, T const& _first, T const& _second) 
@@ -172,7 +173,7 @@ typename Fibonacci<T>::const_iterator Fibonacci<T>::cend() const
 }
 
 template <typename T>
-Fibonacci<T>::const_iterator::const_iterator(const Fibonacci<T> *const container, int _index) {
+Fibonacci<T>::const_iterator::const_iterator(const Fibonacci<T> *container, int _index) {
 	cont = &(*container);
 	index = _index;
 	makeValueDefault();
@@ -212,13 +213,13 @@ template <typename T>
 typename Fibonacci<T>::const_iterator& Fibonacci<T>::const_iterator::operator--() {
 	decrement();
 	
-	return this;
+	return *this;
 }
 template <typename T>
 typename Fibonacci<T>::const_iterator& Fibonacci<T>::const_iterator::operator++() {
 	increment();
 
-	return this;
+	return *this;
 }
 template <typename T>
 typename Fibonacci<T>::const_iterator& Fibonacci<T>::const_iterator::operator-=(typename Fibonacci<T>::const_iterator::difference_type count) {
